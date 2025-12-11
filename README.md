@@ -1,4 +1,4 @@
-# Optimization Algorithm ————————IGKSO ——————improved gkso
+# Optimization Algorithm ——IGKSO ——improved gkso
 
 ## Description
 This repository provides a comprehensive framework for benchmarking and analyzing the performance of intelligent optimization algorithms. It includes implementations of statistical tests (Friedman test, Wilcoxon rank-sum test), algorithm code (IGKSOne), standard test suites (CEC2017, CEC2019), and tools for visualizing iterative convergence behavior. The codebase is designed for researchers in evolutionary computation and swarm intelligence to conduct reproducible experiments and comparative studies.
