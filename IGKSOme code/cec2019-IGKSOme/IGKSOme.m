@@ -3,12 +3,7 @@ X=lb+(ub-lb).*rand(N,dim);
 evaluation_count = 0;
  bestfit1=inf;
  MaxFES=100000;
-% for i=N/2+1:N
-%     X(i,:)=lb+rand(1,dim).*unifrnd(lb+(ub-lb)*2*(i-1)/N,lb+(ub-lb)*2*(i)/N);
-% end
-% ch(1)=0.01;
 for i=1:N
-    %     X(i,:)=dl(i)+rand(1,dim).*(du(i)-dl(i));
     fit(i,1)=feval(fobj,X(i,:));
     evaluation_count = evaluation_count + 1;
             if bestfit1> fit(i,1)
@@ -20,7 +15,7 @@ end
 [bestfit1k,best_index]=min(fit);
 xbest=X(best_index,:);
 Max_iter=1000;
-% curve=zeros(Max_iter,1); %Ã¿Ò»´úµÄ×îÓÅÖµ»ùÓÚ´úÊı»­Ò»¸öÇúÏß
+% curve=zeros(Max_iter,1); %æ¯ä¸€ä»£çš„æœ€ä¼˜å€¼åŸºäºä»£æ•°ç”»ä¸€ä¸ªæ›²çº¿
 w(1)=0.1;
 A=[];
 % t=1;
@@ -33,7 +28,7 @@ while evaluation_count<100000
     %     B1=[];
     w(t+1)=1-2*(w(t))^4;
     %         p(t)=1/(1+1.5*exp((10*t/Max_iter)-5))-0.1*rand;
-    p(t)=(1-(t/Max_iter)^0.25+abs(w(t+1))*((t/Max_iter)^0.25-(t/Max_iter)^3)); %Êı×é»ØÍ·¼ì²éÒ»ÏÂ %Êı×é»ØÍ·¼ì²éÒ»ÏÂ
+    p(t)=(1-(t/Max_iter)^0.25+abs(w(t+1))*((t/Max_iter)^0.25-(t/Max_iter)^3));  %equation 27
     %    p(t)=2*(1-(t/Max_iter)^(t/Max_iter));
     %     p(t)=(1/(1+1.5*exp((10*t/Max_iter)-5)))+0.1*abs(w(t+1));
     %     p(t)=1/(1+1.5*exp((10*t/Max_iter)-5))-0.1*rand;
@@ -45,7 +40,7 @@ while evaluation_count<100000
     %         fit1=mean(fit);
     [fit1, fit_indice] = sort(fit, 'ascend');
     %     N2=20-round(0.1*N*t/Max_iter);
-    N1=10-round(0.1*N*((t/Max_iter)^2));
+    N1=10-round(0.1*N*((t/Max_iter)^2)); %equation 17
     X1=X(fit_indice(1:15),:);
     %         X3=X(fit_indice(1:N1),:);
     %     sim=zeros(size(X1,1),1);
@@ -67,14 +62,14 @@ while evaluation_count<100000
     %     sim_indexs1=remind(1:round(0.6*N1-0.2*N1*t/Max_iter));
     %     X3=[X1(sim_indexs,:);X1( sim_indexs1,:)];
     %     fit3=[fit1(sim_indexs);fit1(sim_indexs1)];
-    [X3, fit3,sim_selected_idx] = selectPopulation(X, fit, t, Max_iter, N1,dim);
-    % ÕÒ³ö X ÖĞ²»ÊôÓÚ X3 µÄĞĞµÄË÷Òı
+    [X3, fit3,sim_selected_idx] = selectPopulation(X, fit, t, Max_iter, N1,dim);%Fitness-Cosine Similarity Hybrid Population Partitioning
+    % æ‰¾å‡º X ä¸­ä¸å±äº X3 çš„è¡Œçš„ç´¢å¼•
     [~, idxxx] = ismember(X, X3, 'rows');
     non_zero_mask = (idxxx ~= 0);
     A_non_zero = idxxx(non_zero_mask);
-    original_indices = find(non_zero_mask); % ¼ÇÂ¼·ÇÁãÔªËØµÄÔ­Ê¼Î»ÖÃ
+    original_indices = find(non_zero_mask); % è®°å½•éé›¶å…ƒç´ çš„åŸå§‹ä½ç½®
     
-    % ²½Öè2£ºÕÒµ½·ÇÁãÔªËØÖĞ²»ÏàÁÚµÄÖØ¸´ÖµºóË÷Òı
+    % æ­¥éª¤2ï¼šæ‰¾åˆ°éé›¶å…ƒç´ ä¸­ä¸ç›¸é‚»çš„é‡å¤å€¼åç´¢å¼•
     [~, ~, ic] = unique(A_non_zero, 'stable');
     counts = accumarray(ic, 1);
     duplicate_values = find(counts > 1);
@@ -83,16 +78,16 @@ while evaluation_count<100000
     for val = duplicate_values'
         idx = find(ic == val);
         if length(idx) >= 2
-            % È¡Ã¿×éÖØ¸´ÖµµÄµÚ¶ş¸ö¼°Ö®ºóµÄË÷Òı£¨Ïà¶ÔA_non_zeroµÄÎ»ÖÃ£©
+            % å–æ¯ç»„é‡å¤å€¼çš„ç¬¬äºŒä¸ªåŠä¹‹åçš„ç´¢å¼•ï¼ˆç›¸å¯¹A_non_zeroçš„ä½ç½®ï¼‰
             back_indices_relative = [back_indices_relative; idx(2:end)];
         end
     end
     
-    % ²½Öè3£ºÓ³Éä»ØÔ­Ê¼Êı×éµÄË÷Òı
+    % æ­¥éª¤3ï¼šæ˜ å°„å›åŸå§‹æ•°ç»„çš„ç´¢å¼•
     back_indices_original = original_indices(back_indices_relative);
-    remain_indices = find(idxxx == 0);  % ÕÒµ½ËùÓĞÎ´Æ¥ÅäµÄĞĞË÷Òı
+    remain_indices = find(idxxx == 0);  % æ‰¾åˆ°æ‰€æœ‰æœªåŒ¹é…çš„è¡Œç´¢å¼•
     remain_indices=[remain_indices;back_indices_original];
-    % ÌáÈ¡Ê£Óà¸öÌå
+    % æå–å‰©ä½™ä¸ªä½“
     X2 = X(remain_indices, :);
     fit2 = fit(remain_indices);
     X=[X3;X2];
@@ -106,29 +101,29 @@ while evaluation_count<100000
 %         XU_fit=[XU_fit;fit3];
     for i=1:N
           if mod(t,100)==0
-                 new_X(i,:)=(min(X)+max(X)-X(i,:));
+                 new_X(i,:)=(min(X)+max(X)-X(i,:));%equation 15
                else
              
         %         if ismember(X(i,:), X3, 'rows')
         if i<=size(X3,1)
             %             lamda=2*rand(1,dim)-1;
             rk=randperm(N1,2);
-            q=((max(fit)-fit(i))/(max(fit)-min(fit))).^((t/Max_iter)^2);   %3
+            q=((max(fit)-fit(i))/(max(fit)-min(fit))).^((t/Max_iter)^2);   %%equation 20
             yita=1;
             if rand<=0.5
                 betau=(rand(1,dim).*2).^(1/(1+yita));
             else
-                betau=(1./(2-2.*rand(1,dim))).^(1/(1+yita));
+                betau=(1./(2-2.*rand(1,dim))).^(1/(1+yita));%equation 24
             end
-            xbest21= 0.5*((1-betau).*X1(1,:)+(1+betau).*X1(min(sim_selected_idx),:));
-            xbest22= 0.5*((1+betau).*X1(1,:)+(1-betau).*X1(min(sim_selected_idx),:));
+            xbest21= 0.5*((1-betau).*X1(1,:)+(1+betau).*X1(min(sim_selected_idx),:));%equation 22
+            xbest22= 0.5*((1+betau).*X1(1,:)+(1-betau).*X1(min(sim_selected_idx),:));%equation 23
             if i==fit_indice(1)
                 xbest2=X(i,:);
             else
                 X0=[xbest21;xbest22;X(i,:)];
-                xbest2=X0(randperm(3,1),:);
+                xbest2=X0(randperm(3,1),:); %equation 21
             end
-            new_X(i,:)=xbest2+q.*(X3(rk(1),:)-X3(rk(2),:));  %220
+            new_X(i,:)=xbest2+q.*(X3(rk(1),:)-X3(rk(2),:));  %%equation 19
 %             for j=1:dim
 %                 if new_X(i,j)>ub(:,j)
 %                     new_X(i,j)=ub(:,j)-mod(new_X(i,j)-ub(:,j),ub(:,j)-lb(:,j));
@@ -163,7 +158,7 @@ while evaluation_count<100000
                 if t/Max_iter<0.5
                     rr=0.2+(1-t/Max_iter)^0.25;
                 else
-                    rr=0.2+0.3*(t/Max_iter)^2;
+                    rr=0.2+0.3*(t/Max_iter)^2;%equation 26
                 end
                 rr1=randperm(N1,1);
                 z=zeros(1,dim);
@@ -187,7 +182,7 @@ while evaluation_count<100000
                 %                          rr1=u2(randperm(length(u2),1));
                 %                          X3_suiji=X3(rr1,:);
                 %                 end
-                new_X(i,:)=X(i,:)+z.*lamda*p(t).^2.*(X(r3(1),:)-X(r3(2),:))+z.*(rr).*(X3_suiji-X(i,:));
+                new_X(i,:)=X(i,:)+z.*lamda*p(t).^2.*(X(r3(1),:)-X(r3(2),:))+z.*(rr).*(X3_suiji-X(i,:));%equation 25
            
 %             for j=1:dim
 %                 if new_X(i,j)>ub(:,j)
@@ -353,10 +348,10 @@ while evaluation_count<100000
         %                 a1= l1*2*(0.5+(1-cos(pi*t/(2*Max_iter)))/2)+(1-l1);
         
         %                 a3= l1*2*(0.5+(1-sin(pi*t/Max_iter))/2)+(1-l1);
-        a1=l1*2*(0.5+sin(pi*t/Max_iter)/2)+(1-l1);
-        a4=l1*2*(0.5+(1-sin(pi*t/Max_iter))/2)+(1-l1);
-        a2= l1*(0.5+(1-cos(pi*t/(2*Max_iter)))/2)+(1-l1);
-        a3= l1*(0.5+cos(pi*t/Max_iter)/2)+(1-l1);
+        a1=l1*2*(0.5+sin(pi*t/Max_iter)/2)+(1-l1);%equation 33
+        a4=l1*2*(0.5+(1-sin(pi*t/Max_iter))/2)+(1-l1);%equation 36
+        a2= l1*(0.5+(1-cos(pi*t/(2*Max_iter)))/2)+(1-l1);%equation 34
+        a3= l1*(0.5+cos(pi*t/Max_iter)/2)+(1-l1);%equation 35
         a5= l1*2*(0.5+(cos(pi*t/(Max_iter)))/2)+(1-l1);
         a6=l1*2*(0.5+sin(pi*t/Max_iter)/2)+(1-l1);
         %         a4=l1*2*(0.5+cos(pi*t/Max_iter)/2)+(1-l1);
@@ -374,7 +369,7 @@ while evaluation_count<100000
         %             candidates=setdiff(1:50,i);
         %             u(3)=randi(length(candidates));
         %         end
-        k1=(-1+2*rand)*(1-(t/Max_iter)^0.25);
+        k1=(-1+2*rand)*(1-(t/Max_iter)^0.25);%equation 32
         k2=normrnd(0,1-(t/Max_iter)^2);
         while abs(k2)>1
             k2=normrnd(0,1-(t/Max_iter)^2);
@@ -388,20 +383,20 @@ while evaluation_count<100000
         if isequal(Xk,Xs(aa1,:))
             l2=~l2;
             %             Xk=l2*(X(i,:)-X(u1,:))+X(u1,:);
-            Xk=l2*(X(i,:)-X(u(3),:))+X(u(3),:);
+            Xk=l2*(X(i,:)-X(u(3),:))+X(u(3),:);%equation 29
         end
         X5=min(X)+rand(1,dim).*(max(X)-min(X));
         X6=min(X)+rand(1,dim).*(max(X)-min(X));
         %         P_ar= calculatePopulationDiversity(X);
-        nVOL = calculateHypervolumeDiversity3(X, lb, ub);
+        nVOL = calculateHypervolumeDiversity3(X, lb, ub);%equation 37
         %                                              D = calculatePopulationDiversity(X);
-        %                                             [h,h1] = calculatePopulationDiversity(X,ub,lb,xbest);% ¼ÆËã¶àÑùĞÔ²â¶È h(k)
+        %                                             [h,h1] = calculatePopulationDiversity(X,ub,lb,xbest);% è®¡ç®—å¤šæ ·æ€§æµ‹åº¦ h(k)
         %                                              Diver = calculatePopulationDiversity(X,ub,lb);
         for j=1:dim
             %             if rand<0.5
             if nVOL<0.15
                 %               if P_ar<0.2*(t/Max_iter)^0.25
-                new_X(i,j)=X(i,j)+(k1).*a1*(Xs(aa1,j)-Xk(1,j)) +a2*(X(u(1),j)-X(u(2),j))+k2*rho.*a3*( X5(:,j)- X6(:,j))*U;%+k2*rho.*a3*( X5(:,j)- X6(:,j))*U
+                new_X(i,j)=X(i,j)+(k1).*a1*(Xs(aa1,j)-Xk(1,j)) +a2*(X(u(1),j)-X(u(2),j))+k2*rho.*a3*( X5(:,j)- X6(:,j))*U;%+k2*rho.*a3*( X5(:,j)- X6(:,j))*U;%equation 28
                 % %                 if abs(X(i,j) - new_X(i,j)) < 1e-10
                 % %                     U=1;
                 % %                 else
@@ -416,10 +411,10 @@ while evaluation_count<100000
                 % %                 %                 % %                 new_X(i,j)=xbest(:,j)+exp(-t/Max_iter)*randn;
                 % %                 %                 % %             end
 %                 new_X(i,j)=Xk(1,j)+(k1).*a6*(Xs(aa1,j)-Xk(1,j))+(a2)*(X(u(1),j)-X(u(2),j))+k2*rho.*a3*( X5(:,j)- X6(:,j))*U;
-                  new_X(i,j)=Xs(aa1,j)+(k1).*a4*(Xs(aa1,j)-Xk(1,j))+(a2)*(X(u(1),j)-X(u(2),j))/2+k2*rho.*a3*( X5(:,j)- X6(:,j))*U;
+                  new_X(i,j)=Xs(aa1,j)+(k1).*a4*(Xs(aa1,j)-Xk(1,j))+(a2)*(X(u(1),j)-X(u(2),j))/2+k2*rho.*a3*( X5(:,j)- X6(:,j))*U;%equation 28
                 % %                 %                   [new_X(i,:), ~] = gradient_local_search(xbest, min(fit), grad_obj, lb, ub, 1000, 1e-6);
             end
-            if abs(X(i,j) - new_X(i,j)) < 1e-10
+            if abs(X(i,j) - new_X(i,j)) < 1e-10%equation 30
                 U=1;
             else
                 U=0;
@@ -443,11 +438,11 @@ while evaluation_count<100000
         end
          Bestcost1( evaluation_count)=bestfit1;
 
-        if new_fit(i,1) < fit(i,1)    % Ğ¡ÓÚÔ­ÓĞÖµ¾Í¸üĞÂ
+        if new_fit(i,1) < fit(i,1)    % å°äºåŸæœ‰å€¼å°±æ›´æ–°
             %                                                         A = [A; X(i,:)];
             %                                                         [~,min_indexA]=max(fit);
             %                                                         if size(A, 1) > 50
-            % %                                                             A(randi(size(A, 1)), :) = [];    % ±£³ÖAµÄÊıÄ¿²»³¬¹ıpopsize
+            % %                                                             A(randi(size(A, 1)), :) = [];    % ä¿æŒAçš„æ•°ç›®ä¸è¶…è¿‡popsize
             %                                                               A(min_indexA, :) = [];
             %                                                         end
             fit(i,1)=new_fit(i,1);
@@ -455,7 +450,7 @@ while evaluation_count<100000
             %             pre_X(i,:)=X(i,:);
             %                         memory_k2 = [memory_k2; k2];
             %                         if size(memory_k2, 1) > 50
-            %                             memory_k2(randi(size(memory_k2, 1)), :) = [];    % ±£³ÖAµÄÊıÄ¿²»³¬¹ıpopsize
+            %                             memory_k2(randi(size(memory_k2, 1)), :) = [];    % ä¿æŒAçš„æ•°ç›®ä¸è¶…è¿‡popsize
             %                         end
         end
         
