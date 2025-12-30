@@ -15,6 +15,8 @@ The repository contains the following components:
 - **cec2017 test suite code** – Integration of CEC2017 benchmark functions.
 - **cec2019 test suite code** – Integration of CEC2019 benchmark functions.
 - **iterative graph code** – iterative graph code.
+- **CEC2017——comparative data results  ** – CEC2017——comparative data results  .
+- **CEC2019——comparative data results  ** – CEC2019——comparative data results  .
 
 ## Usage Instructions
 
